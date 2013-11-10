@@ -4,14 +4,6 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
-
-@app.route('/profile')
-def profile():
-	return render_template('profile.html')
-
-@app.route('/vitals')
-def vitals():
 	context = []
 	# Assume 3 vitals for now
 	vital = {}
@@ -25,7 +17,7 @@ def vitals():
 
 	vital = {}
 	vital['vital_name'] = 'Blood glucose level'
-	vital['vital_icon_name'] = 'glucose-icon.png'
+	vital['vital_icon_name'] = 'bloodglucose-icon.png'
 	vital['vital_value'] = '100 mg/dL'
 	vital['vital_risk'] = 'medium-risk'
 	vital['vital_chart'] = 'glucose-chart.png'
@@ -35,13 +27,22 @@ def vitals():
 	vital = {}
 	vital['vital_name'] = 'BMI'
 	vital['vital_icon_name'] = 'bmi-icon.png'
-	vital['vital_value'] = '20 kg/m2'
+	vital['vital_value'] = '20 kg/m&#178;'
 	vital['vital_risk'] = 'low-risk'
 	vital['vital_chart'] = 'bmi-chart.png'
 	vital['vital_hist'] = 'bmi-histogram.png'
 	context.append(vital)
 
-	return render_template('vitals.html', context = context)
+	return render_template('index.html', context = context)
+
+@app.route('/profile')
+def profile():
+	return render_template('profile.html')
+
+@app.route('/vitals')
+def vitals():
+
+	return render_template('vitals.html')
 
 @app.route('/diagnosis')
 def diagnosis():

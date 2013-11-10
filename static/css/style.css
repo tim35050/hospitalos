@@ -1,7 +1,92 @@
+/*
+Resetting and rebuilding styles have been helped along thanks to the fine work of
+Eric Meyer http://meyerweb.com/eric/tools/css/reset/index.html
+along with Nicolas Gallagher and Jonathan Neal http://necolas.github.com/normalize.css/
+and Blueprint http://www.blueprintcss.org/
+*/
+
+/* =Reset
+-------------------------------------------------------------- */
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+	border: 0;
+	font-family: inherit;
+	font-size: 100%;
+	font-style: inherit;
+	font-weight: inherit;
+	margin: 0;
+	outline: 0;
+	padding: 0;
+	vertical-align: baseline;
+}
+html {
+	font-size: 62.5%; /* Corrects text resizing oddly in IE6/7 when body font-size is set using em units http://clagnut.com/blog/348/#c790 */
+	overflow-y: scroll; /* Keeps page centred in all browsers regardless of content height */
+	-webkit-text-size-adjust: 100%; /* Prevents iOS text size adjust after orientation change, without disabling user zoom */
+	-ms-text-size-adjust: 100%; /* www.456bereastreet.com/archive/201012/controlling_text_size_in_safari_for_ios_without_disabling_user_zoom/ */
+}
+body {
+	background: #fff;
+}
+
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+nav,
+section {
+	display: block;
+}
+ol, ul {
+	list-style: none;
+}
+table { /* tables still need 'cellspacing="0"' in the markup */
+	border-collapse: separate;
+	border-spacing: 0;
+}
+caption, th, td {
+	font-weight: normal;
+	text-align: left;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: "";
+}
+blockquote, q {
+	quotes: "" "";
+}
+a:focus {
+	outline: thin dotted;
+}
+a:hover,
+a:active { /* Improves readability when focused and also mouse hovered in all browsers people.opera.com/patrickl/experiments/keyboard/test */
+	outline: 0;
+}
+a img {
+	border: 0;
+}
+
+/* =Global
+----------------------------------------------- */
+
 body {
 	font-family: tahoma, sans-serif;
 	font-size: 16px;
 	margin: 0;
+	background: url('images/bg-pattern.png');
+	color: #333;
+	font-family: 'Amaranth', sans-serif;
+	/*font-family: 'PT Sans', sans-serif;*/
 }
 a {
 	color: #333;
@@ -31,8 +116,8 @@ ul li {
 	right: 0;
 }
 #wrapper {
-	margin-left: 10px;
-	margin-right: 10px;
+	margin-left: 15px;
+	margin-right: 15px;
 }
 #header-lp, #header {
     height: 50px;
@@ -43,129 +128,171 @@ ul li {
 	width: 100%;
 }
 #header {
-	top: 0;
-	width: 100%;
-	background: #FFF;
-}
-#nav-menu, ul.navigation {
-	background: #FFF;
-}
-#branding {
-	background-image: url('images/logo.jpg');
-	background-repeat: no-repeat;
-	background-size: 40 40;
-	background-position: 0 10;
-	background-color: #FFF;
-	height: 50px;
-	padding-left: 50px;
-	padding-top: 10px;
-	position: fixed;
-	width: 100%;
-}
-#nav-menu {
-	padding-top: 55;
-}
-ul.navigation {
-	width: 100%;
-	margin-top: 0;
-	margin-bottom: 0;
-	padding-left: 0;
-	padding-top: 15px;
-	position: fixed;
-}
-ul.navigation li {
-	text-align: center;
-	display: inline-block;
-	background-position: center top;
-	background-repeat: no-repeat;
-	background-size: 40 40;
-	width: 32%;
-}
-ul.navigation li a {
-	display: block;
-	padding-top: 43px;
-	text-decoration: none;
-	color: #000;
-}
-li.nav-item-profile {
-	background-image: url('images/profile-icon.png');
-}
-li.nav-item-vitals {
-	background-image: url('images/vitals-icon.png');
-}
-li.nav-item-diagnosis {
-	background-image: url('images/diagnosis-icon.png');
-}
-ul.navigation li.active-menu-item a {
-	font-weight: bold;
-}
-.site-name {
-	padding-top: 3px;
-}
-.lp {
-	text-align: center;
-	margin-top: 100px;
-}
-#content {
-	margin-top: 110px;
+	height: 124px;
+	line-height: 124px;
 }
 
+#nav-menu, ul.navigation {
+}
+
+#branding {
+	background-image: url('images/logo.png');
+	background-repeat: no-repeat;
+	background-size: 107 107;
+	background-position: center center;
+	position: relative;
+	height: inherit;
+	line-height: inherit;
+}
+
+.site-name, .site-description {
+	font-size: 20px;
+}
+.site-name {
+	float: left;
+}
+.site-description {
+	float: right;
+}
+
+/* CONTENT */
+.content, .vital, .vital-overlay {
+	margin-top: 10px;
+	background: #FFF;
+	padding: 20px;
+	-webkit-box-shadow: 0px 3px 1px 0px #555;
+	box-shadow: 0px 3px 1px 0px #555;
+}
+.content h2 {
+	margin-top: 10px;
+	margin-bottom: 20px;
+	font-size: 26px;
+	font-weight: bold;
+}
+.content p {
+	font-size: 20px;
+	margin-bottom: 10px;
+	line-height: 1.4em;
+}
+#home, #profile, #vitals, #diagnosis {
+	position: absolute;
+	left: 15px;
+	right: 15px;
+}
+#home {
+	display: block;
+}
+#profile, #vitals, #diagnosis {
+	display: none;
+}
+
+/* NAVIGATION */
+#nav-menu {
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+}
+ul.navigation {
+	padding: 0;
+	margin-bottom: 10px;
+}
+ul.navigation li {
+	display: inline-block;
+	width: 32%;
+	margin-bottom: auto;
+	vertical-align: bottom;
+}
+
+ul.navigation li a {
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
+	text-decoration: none;
+	background-repeat: no-repeat;
+	background-color: #FFF;
+	background-position: 18 center;
+	padding-left: 60px;
+	text-transform: uppercase;
+	height: 65px;
+	line-height: 70px;
+	width: 120px;
+	border-radius: 8px;
+	-webkit-box-shadow: 0px 4px 1px 0px #555;
+	box-shadow: 0px 4px 1px 0px #555;
+	font-family: 'PT Sans', sans-serif;
+	font-weight: bold;
+	font-size: 24px;
+	margin-bottom: 3px;
+}
+a.active-link {
+	background-color: #FBC500 !important;
+	-webkit-box-shadow: 0px 1px 0px 0px #555 !important;
+	box-shadow: 0px 1px 0px 0px #555 !important;
+	color: #FFF;
+	margin-bottom: 0 !important;
+}
+a.nav-profile {
+	background-image: url('images/profile-icon.png');
+}
+a.nav-profile-active {
+	background-image: url('images/profile-icon-selected.png');
+}	
+a.nav-vitals {
+	background-image: url('images/vitals-icon.png');
+}
+a.nav-vitals-active {
+	background-image: url('images/vitals-icon-selected.png');
+}
+a.nav-diagnosis {
+	background-image: url('images/diagnosis-icon.png');
+}
+a.nav-diagnosis-active {
+	background-image: url('images/diagnosis-icon-selected.png');
+}
 /* Vitals Page */
 .vital {
-	width: 100%;
-	height: 68px;
-	margin-top: 18px;
-	-webkit-box-shadow: 0px 1px 2px rgba(51, 51, 51, 0.65);
-    -moz-box-shadow:    0px 1px 2px rgba(51, 51, 51, 0.65);
-    box-shadow:         0px 1px 2px rgba(51, 51, 51, 0.65);
-}
-.last-visit {
-	width: auto;
-	height: 18px;
-	padding: 10px;
-	background: #EEE;
-	font-style: italic;
-	margin-top: 18px;
-	text-align: center;
+	margin-bottom: 15px;
+	padding-top: 10px;
+	padding-left: 100px;
+	border-left-width: 8px;
+	border-left-style: solid;
+	background-color: #FFF;
 }
 .vital-icon, .vital-icon-overlay {
 	float: left;
+}
+.vital-icon {
+	margin-top: auto;
+	margin-bottom: auto;
+	max-width: 55px;
+	max-height: 55px;
+}
+.vital-icon-overlay {
 	padding: 15px;
 }
 .vital-name {
 	padding-top: 10px;
-	font-size: 18px;
+	font-size: 22px;
 	font-weight: bold;
 }
 .vital-value {
 	padding-top: 4px;
-	clear: none;
 }
-.vital-overlay-wrapper {
-	z-index: 2;
-	position: absolute;
-	display: none;
-	margin: auto;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	right: 0;
-	height: 100%;
-	width: 100%;
-	background: rgba(0, 0, 0, 0.5);
+.vital-value span {
+	font-size: 22px;
+	font-weight: normal;
 }
 .vital-overlay {
+	display: none;
 	position: absolute;
-	margin: auto;
 	top: 0;
 	left: 0;
 	bottom: 0;
 	right: 0;
-	height: 90%;
-	width: 85%;
-	border-radius: 5;
 	padding: 15px;
 	background: #FFF;
+	border-top-style: solid;
+	border-top-width: 8px;
 	-webkit-box-shadow: 0px 1px 2px rgba(51, 51, 51, 0.65);
     -moz-box-shadow:    0px 1px 2px rgba(51, 51, 51, 0.65);
     box-shadow:         0px 1px 2px rgba(51, 51, 51, 0.65);
@@ -183,6 +310,7 @@ ul.vital-breakdown {
 	margin-top: 10px;
 }
 .close-overlay {
+	background-image: url('images/close-icon.png');
 	position: fixed;
 	display: block;
 	top: 40px;
@@ -201,13 +329,31 @@ ul.vital-breakdown {
 	margin-top: -10px;
 }
 .high-risk {
-	color: #F07B7F;
+	color: #EC5968;
+}
+.high-risk-border-left {
+	border-left-color: #EC5968;
+}
+.high-risk-border-top {
+	border-top-color: #EC5968;
 }
 .medium-risk {
 	color: #F7A649;
 }
+.medium-risk-border-left {
+	border-left-color: #F7A649;
+}
+.medium-risk-border-top {
+	border-top-color: #F7A649;
+}
 .low-risk {
 	color: #78BB66;
+}
+.low-risk-border-left {
+	border-left-color: #78BB66;
+}
+.low-risk-border-top {
+	border-top-color: #78BB66;
 }
 .vital-date {
 	display: inline-block;
@@ -235,7 +381,15 @@ ul.vital-breakdown {
 	max-width: 180px;
 	float: left;
 }
-
+.last-visit {
+	width: auto;
+	height: 18px;
+	padding: 10px;
+	background: #FFF;
+	font-style: italic;
+	margin-top: 18px;
+	text-align: center;
+}
 /* Profile Page */
 .patient-profile {
 }

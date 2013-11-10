@@ -1,5 +1,88 @@
 {% include 'header.html' %}
-<div id="content">
-    Welcome!
+<div id="home" class="content">
+    <h2>Welcome to Berkeley Hospital OS!</h2>
+    <p>We provide you with access to your medical records, then we help you understand them. Our goal is for you to become informed about your health and change your behavior to lead a healthier life.</p>
+</div>
+<div id="profile" class="content">
+    <div class="patient-profile">
+        <img src="static/images/male-avatar.png" class="img-avatar" />
+        <ul class="patient-profile-items">
+            <li>
+                <label for="patient-name">Name:</label> Wasin Pangpon
+            </li>
+            <li>
+                <label for="patient-gender">Gender:</label> Male
+            <li>
+                <label for="patient-age">Age:</label> 26
+            </li>
+            <li>
+                <label for="patient-height">Height:</label> 1.78m
+            </li>
+            <li>
+                <label for="patient-weight">Weight:</label> 70kg
+            </li>
+            <li>
+                <label for="patient-wc">Waist:</label> 28"
+            </li>
+        </ul>
+    </div>
+</div>
+<div id="vitals">
+    {% for vital in context %}
+    <div class="vital {{ vital.vital_risk }}-border-left" style="background-color: #FFF, #FFF; background-image: url('static/css/images/{{ vital.vital_icon_name }}'), url('static/css/images/expand.png'); background-repeat: no-repeat, no-repeat; background-position: 20 center, right top;">
+        <div class="vital-name">{{ vital.vital_name }}</div>
+        <div class="vital-value">
+            <span class="{{ vital.vital_risk }}">{{ vital.vital_value|safe }}</span>
+        </div>
+        <div class="vital-overlay {{ vital.vital_risk }}-border-top">
+            <div class="vital-icon-overlay">
+                <img src="static/css/images/{{ vital.vital_icon_name }}" width="36" height="36" />
+            </div>
+            <div class="vital-overlay-name">{{ vital.vital_name }}</div>
+            <div class="vital-overlay-content">
+                <ul class="vital-breakdown">
+                    <li>
+                        <div class="vital-overlay-value-date">
+                            <div class="vital-overlay-value {{ vital.vital_risk }} ">{{ vital.vital_value }}</div>
+                        </div>
+                    </li>
+                    <li>
+                        <label>Risk:</label>
+                        <div class="vital-risk-description">
+                            Your {{ vital.vital_name }} is {{ vital.vital_risk }}.
+                        </div>
+                    </li>
+                </ul>
+                <div class="vital-stats">
+                    <p>
+                        <img src="static/images/{{ vital.vital_chart }}" class="vital-stats-image" />
+                    </p>
+                    <p>
+                        <img src="static/images/{{ vital.vital_hist }}" class="vital-stats-image" />
+                    </p>
+                </div>
+                <div class="population-stats">
+                    <p>You have <span class="high-risk">worse</span> cholesterol than <span class="high-risk">84%</span> of the Thai population</p>
+                </div>
+                <ul class="vital-breakdown">
+                    <li>
+                        <label>Details:</label>
+                        <div class="vital-value-explanation">When too much LDL (bad) cholesterol circulates in the blood, it can slowly build up in the inner walls of the arteries that feed the heart and brain <a href="#">[more]</a></p>
+                    </li>
+                </ul>
+            </div>
+            <div class="close-overlay">
+                <!--<img src="static/css/images/close-icon.png" />-->
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    <div class="last-visit">
+        Vitals last updated September 25th, 2013
+    </div>
+</div>
+<div id="diagnosis" class="content">
+    <img src="static/images/kongkiat.jpeg" style="float: left; margin-right: 20px;" />
+    <p>"You have <b>high cholesterol</b>.  This is not yet dangerous at your age, but as you become older you will be more susceptable to developing cardiovascular disease.  You need to reduce your fat intake by eating more vegetables and less greasy foods."</p>
 </div>
 {% include 'footer.html' %}
