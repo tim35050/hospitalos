@@ -32,36 +32,18 @@
     <div class="vital {{ vital.vital_risk }}-border-left" style="background-color: #FFF, #FFF; background-image: url('static/css/images/{{ vital.vital_icon_name }}'), url('static/css/images/expand.png'); background-repeat: no-repeat, no-repeat; background-position: 20 center, right top;">
         <div class="vital-name">{{ vital.vital_name }}</div>
         <div class="vital-value">
-            <span class="{{ vital.vital_risk }}">{{ vital.vital_value|safe }}</span>
+            <span class="{{ vital.vital_risk }}">{{ vital.vital_value }} {{ vital.vital_unit|safe }}</span>
         </div>
-        <div class="vital-overlay {{ vital.vital_risk }}-border-top">
-            <div class="vital-icon-overlay">
-                <img src="static/css/images/{{ vital.vital_icon_name }}" width="36" height="36" />
-            </div>
+        <div class="vital-overlay {{ vital.vital_risk }}-border-top" style="background-image: url('static/css/images/{{ vital.vital_icon_name }}');">
             <div class="vital-overlay-name">{{ vital.vital_name }}</div>
+            <div class="vital-overlay-date">Updated September 30<sup>th</sup>, 2013</div>
             <div class="vital-overlay-content">
-                <ul class="vital-breakdown">
-                    <li>
-                        <div class="vital-overlay-value-date">
-                            <div class="vital-overlay-value {{ vital.vital_risk }} ">{{ vital.vital_value }}</div>
-                        </div>
-                    </li>
-                    <li>
-                        <label>Risk:</label>
-                        <div class="vital-risk-description">
-                            Your {{ vital.vital_name }} is {{ vital.vital_risk }}.
-                        </div>
-                    </li>
-                </ul>
-                <div class="vital-stats">
-                    <p>
-                        <img src="static/images/{{ vital.vital_chart }}" class="vital-stats-image" />
-                    </p>
-                    <p>
-                        <img src="static/images/{{ vital.vital_hist }}" class="vital-stats-image" />
-                    </p>
+            	Your {{ vital.vital_name.lower() }} is <span class="vital-overlay-value {{ vital.vital_risk }} ">{{ vital.vital_value }}</span> {{ vital.vital_unit|safe }}
+                <div class="vital-stats {{ vital.vital_id }}">
+        			
+
                 </div>
-                <div class="population-stats">
+<!--                 <div class="population-stats">
                     <p>You have <span class="high-risk">worse</span> cholesterol than <span class="high-risk">84%</span> of the Thai population</p>
                 </div>
                 <ul class="vital-breakdown">
@@ -69,11 +51,9 @@
                         <label>Details:</label>
                         <div class="vital-value-explanation">When too much LDL (bad) cholesterol circulates in the blood, it can slowly build up in the inner walls of the arteries that feed the heart and brain <a href="#">[more]</a></p>
                     </li>
-                </ul>
+                </ul> -->
             </div>
-            <div class="close-overlay">
-                <!--<img src="static/css/images/close-icon.png" />-->
-            </div>
+            <div class="close-overlay"></div>
         </div>
     </div>
     {% endfor %}

@@ -185,6 +185,10 @@ ul li {
 #profile, #vitals, #diagnosis {
 	display: none;
 }
+#vitals {
+	top: 124px;
+	bottom: 100px;
+}
 
 /* NAVIGATION */
 #nav-menu {
@@ -250,6 +254,7 @@ a.nav-diagnosis-active {
 	background-image: url('images/diagnosis-icon-selected.png');
 }
 /* Vitals Page */
+
 .vital {
 	margin-bottom: 15px;
 	padding-top: 10px;
@@ -283,6 +288,10 @@ a.nav-diagnosis-active {
 	font-weight: normal;
 }
 .vital-overlay {
+	background-color: #FFF;
+	background-repeat: no-repeat; 
+	background-position: 25 28;
+	background-attachment: local;
 	display: none;
 	position: absolute;
 	top: 0;
@@ -290,7 +299,6 @@ a.nav-diagnosis-active {
 	bottom: 0;
 	right: 0;
 	padding: 15px;
-	background: #FFF;
 	border-top-style: solid;
 	border-top-width: 8px;
 	-webkit-box-shadow: 0px 1px 2px rgba(51, 51, 51, 0.65);
@@ -303,30 +311,42 @@ ul.vital-breakdown {
 	-webkit-margin-before: 1em;
 	-webkit-margin-after: 0em;
 }
-.vital-overlay-name {
-	padding-top: 10px;
-	font-size: 20px;
-	font-weight: bold;
-	margin-top: 10px;
-}
 .close-overlay {
 	background-image: url('images/close-icon.png');
+	background-size: 53px 53px;
 	position: fixed;
 	display: block;
-	top: 40px;
-	right: 24px;
+	top: 170px;
+	right: 40px;
+	height: 53px;
+	width: 53px;
+}
+.vital-overlay-name, .vital-overlay-date {
+	padding-left: 90px;
+}
+.vital-overlay-name {
+	font-size: 36px;
+	font-weight: bold;
+	margin-top: 5px;
+}
+.vital-overlay-date {
+	margin-top: 10px;
+	font-size: 18px;
+	color: #999;
+	font-family: 'PT Sans', sans-serif;
 }
 .vital-overlay-content {
-	clear: both;
-	padding-top: 6px;
-}
-.vital-overlay-value-date {
-	display: inline-block;	
+	text-align: center;
+	margin-top: 20px;
+	font-size: 22px;
+	color: #666;
 }
 .vital-overlay-value {
-	padding-right: 10px;
-	font-size: 36px;
-	margin-top: -10px;
+	font-family: 'PT Sans', sans-serif;
+	font-weight: bold;
+	font-size: 48px;
+	margin-left: 3px;
+	margin-right: 3px;
 }
 .high-risk {
 	color: #EC5968;
@@ -371,6 +391,7 @@ ul.vital-breakdown {
 }
 .vital-stats {
 	text-align: center;
+	margin-top: 20px;
 }
 .vital-stats-image {
 	max-width: 100%;
@@ -399,3 +420,21 @@ ul.patient-profile-items {
 ul.patient-profile-items li {
 	list-style: none;
 }
+
+/* D3 Styles */
+.axis path,
+.axis line {
+    fill: none;
+    stroke: none;
+    /*shape-rendering: crispEdges;*/
+}
+.vital-stats-label {
+	font-size: 16px;
+	fill: #666;
+}
+.axis text {
+    font-family: 'PT Sans', sans-serif;
+    font-size: 18px;
+    fill: #666;
+}
+
