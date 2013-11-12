@@ -426,7 +426,7 @@ ul.patient-profile-items li {
 .axis line {
     fill: none;
     stroke: none;
-    /*shape-rendering: crispEdges;*/
+    shape-rendering: crispEdges;
 }
 .vital-stats-label {
 	font-size: 16px;
@@ -437,4 +437,6 @@ ul.patient-profile-items li {
     font-size: 18px;
     fill: #666;
 }
-
+.bar rect {
+  shape-rendering: crispEdges;
+}

@@ -32,14 +32,30 @@
     <div class="vital {{ vital.vital_risk }}-border-left" style="background-color: #FFF, #FFF; background-image: url('static/css/images/{{ vital.vital_icon_name }}'), url('static/css/images/expand.png'); background-repeat: no-repeat, no-repeat; background-position: 20 center, right top;">
         <div class="vital-name">{{ vital.vital_name }}</div>
         <div class="vital-value">
-            <span class="{{ vital.vital_risk }}">{{ vital.vital_value }} {{ vital.vital_unit|safe }}</span>
+            <span class="{{ vital.vital_risk }}">
+            	{% for vital_value in vital.vital_values -%}
+            		{{ vital_value }}
+	           		{%- if not loop.last -%}
+	           			{{ vital.vital_values_sep|safe }}
+	           		{%- endif -%}
+            	{%- endfor %}
+            	{{ vital.vital_unit|safe }}
+            </span>
         </div>
         <div class="vital-overlay {{ vital.vital_risk }}-border-top" style="background-image: url('static/css/images/{{ vital.vital_icon_name }}');">
             <div class="vital-overlay-name">{{ vital.vital_name }}</div>
             <div class="vital-overlay-date">Updated September 30<sup>th</sup>, 2013</div>
             <div class="vital-overlay-content">
-            	Your {{ vital.vital_name.lower() }} is <span class="vital-overlay-value {{ vital.vital_risk }} ">{{ vital.vital_value }}</span> {{ vital.vital_unit|safe }}
-                <div class="vital-stats {{ vital.vital_id }}">
+            	Your {{ vital.vital_name.lower() }} is 
+            	<span class="vital-overlay-value {{ vital.vital_risk }} ">
+            		{% for vital_value in vital.vital_values -%}
+            			<span class="{{ vital.vital_id }}-value-{{ loop.index0 }}">{{ vital_value }}</span>
+	           			{%- if not loop.last -%}
+	           				{{ vital.vital_values_sep|safe }}
+	           			{%- endif -%}
+            		{%- endfor %}
+            	</span> {{ vital.vital_unit|safe }}
+                <div class="vital-stats {{ vital.vital_id }} {{ vital.vital_risk }}">
         			
 
                 </div>
