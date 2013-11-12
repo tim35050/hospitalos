@@ -428,6 +428,12 @@ ul.patient-profile-items li {
     stroke: none;
     shape-rendering: crispEdges;
 }
+.histogram-axis path,
+.histogram-axis line {
+	fill: none;
+	stroke: #999;
+	shape-rendering: crispEdges;
+} 
 .vital-stats-label {
 	font-size: 16px;
 	fill: #666;
@@ -440,3 +446,14 @@ ul.patient-profile-items li {
 .bar rect {
   shape-rendering: crispEdges;
 }
+.histogram-axis text {
+	font-size: 14px;
+	fill: #666;
+}
+.histogram-label {
+	font-size: 18px;
+	fill: #666;
+}
+
+
+

@@ -53,11 +53,18 @@ $( ".vital" ).click(function() {
     	vov = voc.children('.vital-overlay-value');
     	var vitalValues = [];
     	vov.children().each(function() {
-    		vitalValues.push($(this));
+    		vitalValues.push($(this).html());
     	});
-    	animateVital(vital, vitalRisk, vitalValues);
-		displayHistogram(vital);
+    	subVitals = animateVital(vital, vitalRisk, vitalValues);
+    	if (subVitals != null) {
+    		for (i=vitalValues.length - 1; i >= 0; i--) {
+				displayHistogram(vital, subVitals[i], vitalValues[i]);
+			}
+    	}
     });
+});
+$( ".vital-overlay" ).click(function() {
+	event.stopPropagation();
 });
 
 $( ".close-overlay" ).click(function() {
@@ -66,10 +73,12 @@ $( ".close-overlay" ).click(function() {
 });
 
 var animatedVitals = [];
+var displayedHistograms = [];
 
 function animateVital(vital, vitalRisk, values) {
 	// the following doesn't work for IE 8 and below
 	if (animatedVitals.indexOf(vital) == -1) {
+		subVitals = [];
 		imgUrl = getSmileyUrl(vitalRisk);
 		index = 0;
 		scaled_values = []
@@ -84,11 +93,12 @@ function animateVital(vital, vitalRisk, values) {
 				.attr("width", smileyWidth)
 				.attr("height", smileyHeight)
 				.attr("class", svg.attr("class"));
+			subVitals.push(svg.attr("class"));
 		});
 		
 		d3.selectAll('.' + vital + ' image').each(function() {
 			img = d3.select(this);
-			vitalValue = values[index].html();
+			vitalValue = values[index];
 			className = img.attr("class");
 			scaledValue = scaleFunctions[vital + '-' + className](vitalValue);
 		 	img.transition()
@@ -97,7 +107,9 @@ function animateVital(vital, vitalRisk, values) {
 		 	index += 1;
 		});
 		animatedVitals.push(vital);
+		return subVitals;
 	}
+	return null;
 }
 
 function getSmileyUrl(vitalRisk) {
@@ -180,19 +192,23 @@ function loadD3Vitals() {
 }
 
 // Histogram
-function displayHistogram(vital) {
-	d3.csv("../static/data/sys-bp.csv", function(data) {
-    	console.log(data);
-    	dataset = data.map(function(d) { return parseInt(d["Systolic BP"]); });
-    	generateVis(vital);
-	});
+function displayHistogram(vital, subvital, vitalValue) {
+	histogramID = vital + "-" + vitalValue;
+	if (displayedHistograms.indexOf(histogramID) == -1) {
+		d3.csv("../static/data/sys-bp.csv", function(data) {
+	    	dataset = data.map(function(d) { return parseInt(d["Systolic BP"]); });
+	    	generateVis(vital, subvital, vitalValue);
+		});
+		displayedHistograms.push(histogramID);
+	}
 }
 
-function generateVis(vital) {
+function generateVis(vital, subVital, vitalValue) {
+	vitalValue = vitalValue;
 
     var formatCount = d3.format(",.0f");
 	var formatAsPercentage = d3.format("1%");
-    var margin = {top: 30, right: 30, bottom: 40, left: 30},
+    var margin = {top: 30, right: 30, bottom: 50, left: 40},
         width = 550 - margin.left - margin.right,
         height = 350 - margin.top - margin.bottom;
 
@@ -200,7 +216,6 @@ function generateVis(vital) {
     minData = Math.max(minData, 70);
     maxData = d3.max(dataset, function(d) { return d; });
     maxData = Math.min(maxData, 190);
-
 
     var xData = d3.scale.linear()
         .domain([ minData , maxData ])
@@ -227,6 +242,7 @@ function generateVis(vital) {
     var yAxis = d3.svg.axis()
         .scale(y)
         .orient("left")
+        .ticks(4)
         .tickFormat(formatAsPercentage);
 
     var svg = d3.select('.' + vital).append("svg")
@@ -237,50 +253,129 @@ function generateVis(vital) {
 
     var bar = svg.selectAll(".bar")
         .data(data)
-        .enter().append("g")
+        .enter()
+        .append("g")
         .attr("class", "bar")
         .attr("transform", function(d) { 
-            return "translate(" + xData(d.x) + "," + y(d.y / dataset.length) + ")"; 
+            //return "translate(" + xData(d.x) + ", " + y(d.y / dataset.length) + ")"; 
+            return "translate(" + xData(d.x) + ", 0)";
         });
 
     bar.append("rect")
         .attr("x", 1)
+        .attr("y", height)
         .attr("width", x(data[0].dx) - 1)
-        .attr("height", function(d) {
-            return height - y(d.y / dataset.length); 
-        })
+        .attr("height", 0)
         .attr("fill", function(d) {
             xBucket = d.x + d.dx;
             if (xBucket <= 90) {
-                return "#4BC0B5";
+                return "#F7A649";
             } else if(xBucket <= 120) {
                 return "#78BB66";
             } else if(xBucket <= 140) {
                 return "#F7A649";
-            } else if(xBucket <= 160) {
-                return "#F07B7F";
             } else {
                 return "#ED5A69";
             }
         });
 
+    svg.selectAll("rect")
+    	.transition()
+    	.duration(1000)
+        .attr("height", function(d) {
+            return height - y(d.y / dataset.length);
+        })
+        .attr("y", function(d) {
+        	return y(d.y / dataset.length);
+        });
+
+    var subVitalRange = getSubVitalRange(subVital);
+
+    bar.filter(function(d) {
+    		xBucketMax = d.x + d.dx;
+    		xBucketMin = d.x - d.dx;
+    		return (xBucketMin < vitalValue) && (xBucketMax > vitalValue);
+    	}).append("image")
+    	.attr("x", 2)
+    	.attr("y", height - 44)
+    	.transition()
+    	.duration(1000)
+    	.attr("y", function(d) {
+    		return y(d.y / dataset.length)-44;
+    	})
+		.attr("xlink:href", function(d) {
+			riskString = getRangeRisk(vitalValue, subVitalRange.value, subVitalRange.min, 1);
+			return '../static/css/images/person-' + riskString + '.png'
+		})
+		.attr("src", function(d) {
+			riskString = getRangeRisk(vitalValue, subVitalRange.value, subVitalRange.min, 1);
+			return '../static/css/images/person-' + riskString + '.png'
+		})
+		.attr("width", 17)
+		.attr("height", 44);
+
     svg.append("g")
-        .attr("class", "x axis")
+        .attr("class", "x histogram-axis")
         .attr("transform", "translate(0," + height + ")")
         .call(xAxis);
 
     svg.append("text")
-        .attr("class", "x label")
+        .attr("class", "x histogram-label")
         .attr("text-anchor", "middle")
         .attr("x", width / 2)
-        .attr("y", height + 35)
-        .text("SYSTOLIC BLOOD PRESSURE (mmHg)");
-
+        .attr("y", height + 45)
+        .text(subVital.toUpperCase() + " " + vital.toUpperCase());
 
     svg.append("g")
-        .attr("class", "y axis")
+        .attr("class", "y histogram-axis")
         .call(yAxis);
 
+}
+
+function getRangeRisk(value, ranges, min, colorOrRisk) {
+	cumValue = 0;
+	for (i=0; i<ranges.length; i++) {
+		cumValue += ranges[i][0];
+		if (value <= (cumValue + min)) {
+			if (colorOrRisk == 0) {
+				// return color
+				return ranges[i][1];
+			} else {
+				return getRangeRiskString(i);
+			}
+			if ((i == ranges.length - 1) && (value > (cumValue + min))) {
+				if (colorOrRisk == 0) {
+					return ranges
+				} else {
+					return getRangeRiskString(i);
+				}
+			}
+		}
+	}
+}
+
+function getRangeRiskString(id) {
+	if (id == 0 || id == 2) {
+		return "medium-risk";
+	} else if (id == 1) {
+		return "low-risk";
+	} else if (id == 3) {
+		return "high-risk"
+	}
+}
+
+function getSubVitalRange(subvital) {
+	var vitalRanges = getVitalRanges();
+    for (i=0; i < vitalRanges.length; i++) {
+    	var vitalRangeID = vitalRanges[i].id;
+    	if (vitalRangeID == vital) {
+    		for (j=0; j < vitalRanges[i].dataset.length; j++) {
+    			if (vitalRanges[i].dataset[j].name == subvital) {
+    				return vitalRanges[i].dataset[j];
+    			}
+    		}
+    	}
+    }
 }
 
 function getVitalRanges() {
