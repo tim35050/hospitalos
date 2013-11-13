@@ -192,18 +192,21 @@ function loadD3Vitals() {
 }
 
 // Histogram
-function displayHistogram(vital, subvital, vitalValue) {
+function displayHistogram(vital, subVital, vitalValue) {
 	histogramID = vital + "-" + vitalValue;
 	if (displayedHistograms.indexOf(histogramID) == -1) {
-		d3.csv("../static/data/sys-bp.csv", function(data) {
-	    	dataset = data.map(function(d) { return parseInt(d["Systolic BP"]); });
-	    	generateVis(vital, subvital, vitalValue);
+		d3.csv("../static/data/" + vital + "-" + subVital + ".csv", function(data) {
+	    	dataset = data.map(function(d) { return parseFloat(d[vital + "-" + subVital]); });
+	    	generateVis(vital, subVital, vitalValue);
 		});
 		displayedHistograms.push(histogramID);
 	}
 }
 
 function generateVis(vital, subVital, vitalValue) {
+	if (vital == 'bmi') {
+		console.log(dataset);
+	}
 	vitalValue = vitalValue;
 
     var formatCount = d3.format(",.0f");
@@ -213,9 +216,9 @@ function generateVis(vital, subVital, vitalValue) {
         height = 350 - margin.top - margin.bottom;
 
     minData = d3.min(dataset, function(d) { return d; });
-    minData = Math.max(minData, 70);
+    //minData = Math.max(minData, 10);
     maxData = d3.max(dataset, function(d) { return d; });
-    maxData = Math.min(maxData, 190);
+    //maxData = Math.min(maxData, 190);
 
     var xData = d3.scale.linear()
         .domain([ minData , maxData ])
@@ -226,7 +229,7 @@ function generateVis(vital, subVital, vitalValue) {
         .range([ 0, width ]);
 
     data = d3.layout.histogram()
-        .bins(xData.ticks(40))
+        .bins(xData.ticks(25))
         (dataset);
 
     var y = d3.scale.linear()
@@ -261,18 +264,23 @@ function generateVis(vital, subVital, vitalValue) {
             return "translate(" + xData(d.x) + ", 0)";
         });
 
+    var subVitalRange = getSubVitalRange(subVital);
+
     bar.append("rect")
         .attr("x", 1)
         .attr("y", height)
         .attr("width", x(data[0].dx) - 1)
         .attr("height", 0)
         .attr("fill", function(d) {
-            xBucket = d.x + d.dx;
-            if (xBucket <= 90) {
+            var xBucket = d.x + d.dx;
+            var threshold0 = subVitalRange.value[0][0] + subVitalRange.min;
+            var threshold1 = threshold0 + subVitalRange.value[1][0];
+            var threshold2 = threshold1 + subVitalRange.value[2][0];
+            if (xBucket <= (threshold0)) {
                 return "#F7A649";
-            } else if(xBucket <= 120) {
+            } else if(xBucket <= threshold1) {
                 return "#78BB66";
-            } else if(xBucket <= 140) {
+            } else if(xBucket <= threshold2) {
                 return "#F7A649";
             } else {
                 return "#ED5A69";
@@ -289,14 +297,16 @@ function generateVis(vital, subVital, vitalValue) {
         	return y(d.y / dataset.length);
         });
 
-    var subVitalRange = getSubVitalRange(subVital);
+	riskString = getRangeRisk(vitalValue, subVitalRange.value, subVitalRange.min, 1);
 
     bar.filter(function(d) {
     		xBucketMax = d.x + d.dx;
-    		xBucketMin = d.x - d.dx;
-    		return (xBucketMin < vitalValue) && (xBucketMax > vitalValue);
+    		xBucketMin = d.x;
+    		return (xBucketMin <= vitalValue) && (xBucketMax > vitalValue);
     	}).append("image")
-    	.attr("x", 2)
+    	.attr("x", function(d) {
+    		return x(d.dx/2) - 8;
+    	})
     	.attr("y", height - 44)
     	.transition()
     	.duration(1000)
@@ -304,11 +314,9 @@ function generateVis(vital, subVital, vitalValue) {
     		return y(d.y / dataset.length)-44;
     	})
 		.attr("xlink:href", function(d) {
-			riskString = getRangeRisk(vitalValue, subVitalRange.value, subVitalRange.min, 1);
 			return '../static/css/images/person-' + riskString + '.png'
 		})
 		.attr("src", function(d) {
-			riskString = getRangeRisk(vitalValue, subVitalRange.value, subVitalRange.min, 1);
 			return '../static/css/images/person-' + riskString + '.png'
 		})
 		.attr("width", 17)
@@ -421,7 +429,42 @@ function getVitalRanges() {
 								]
 						}
 					]
-					
+			},
+			{
+				id: 'cholesterol',
+				dataset:
+					[
+						{
+							name: 'total',
+							min: 140,
+							max: 300,
+							value:
+								[
+									[20,'#F4A731'], [40,'#78BB66'], 
+									[20,'#F4A731'],[80,'#ED5A69']
+								]
+						},
+						{
+							name: 'hdl',
+							min: 15,
+							max: 100,
+							value:
+								[
+									[10,'#F4A731'], [10,'#78BB66'], 
+									[20,'#F4A731'], [45,'#ED5A69']
+								]
+						},
+						{
+							name: 'ldl',
+							min: 60,
+							max: 200,
+							value:
+								[
+									[20,'#F4A731'], [20,'#78BB66'], 
+									[40,'#F4A731'], [60, '#ED5A69']
+								]
+						}
+					]
 			},
 			{
 				id: 'bmi',
