@@ -37,10 +37,69 @@ $( 'ul.navigation li a').click(function() {
 });
 
 // VITALS
+
+// D3 Variables
+var xScaleFunctions = {};
+var xHistScaleFunctions = {};
+var yScaleFunctions = {};
+var w = 550;
+var h = 80;
+var barSpacing = 2;
+var barHeight = 14;
+var barYPos = 42;
+var padding = 25;
+var smileyWidth = 33;
+var smileyHeight = 36;
+var margin = {top: 30, right: padding, bottom: 50, left: padding};
+var histogramHeight = 350 - margin.top - margin.bottom;
+
 // Load some D3 stuff at the way beginning
 $( document ).ready(function() {
-	loadD3Vitals();
+	initializeData();
 });
+
+function initializeData() {
+
+	var vitals = getVitalRanges();
+	setRiskLevels(vitals);
+	vitalData = {};
+	d3.csv("../static/data/histogram-data.csv", function(data) {
+		for (i = 0; i < vitals.length; i++) {
+			vital = vitals[i];
+			for (j = 0; j < vital.ranges.length; j++) {
+				subVital = vital.ranges[j];
+		    	dataset = data.map(function(d) { return parseFloat(d[vital.id + "-" + subVital.name]); });
+		    	vitalData[ vital.id + "-" + subVital.name ] = dataset;
+			}
+		}
+   		loadVitalVisuals();
+	});
+}
+
+function setRiskLevels(vitals) {
+	for (i = 0; i < vitals.length; i++) {
+		vital = vitals[i];
+   		var index = 0;
+		$('.vital-overlay-content .' + vital.id).children().each(function() {
+			ranges = vital.ranges[index];
+		   	for (k = 0; k < ranges.value.length; k++) {
+	   			cutoff = ranges.value[k][0];
+	   			if ($(this).html() < cutoff) {
+	   				setRiskLevel(vital.id, ranges.value[k][2]);
+	   				break;
+	   			}
+		   	}
+	   		index += 1;
+		});
+	}
+}
+
+function setRiskLevel(vital, risk) {
+	$('span.' + vital).addClass(risk);
+	$('.vital-stats.' + vital).addClass(risk);
+	$('.vital-overlay.' + vital).addClass(risk + "-border-top");
+	$('.vital.' + vital).addClass(risk + "-border-left")
+}
 
 // Handle vital selections and the vital overlay
 $( ".vital" ).click(function() {
@@ -55,12 +114,12 @@ $( ".vital" ).click(function() {
     	vov.children().each(function() {
     		vitalValues.push($(this).html());
     	});
-    	subVitals = animateVital(vital, vitalRisk, vitalValues);
-    	if (subVitals != null) {
-    		for (i=vitalValues.length - 1; i >= 0; i--) {
-				displayHistogram(vital, subVitals[i], vitalValues[i]);
-			}
-    	}
+    	animateVital(vital, vitalRisk, vitalValues);
+    	//if (subVitals != null) {
+    		//for (i=vitalValues.length - 1; i >= 0; i--) {
+				animateHistogram(vital, vitalRisk, vitalValues);
+			//}
+    	//}
     });
 });
 $( ".vital-overlay" ).click(function() {
@@ -73,17 +132,15 @@ $( ".close-overlay" ).click(function() {
 });
 
 var animatedVitals = [];
-var displayedHistograms = [];
+var animatedHistograms = [];
 
 function animateVital(vital, vitalRisk, values) {
 	// the following doesn't work for IE 8 and below
 	if (animatedVitals.indexOf(vital) == -1) {
-		subVitals = [];
 		imgUrl = getSmileyUrl(vitalRisk);
 		index = 0;
-		scaled_values = []
-		index = 0;
-		d3.selectAll('.' + vital + ' svg').each(function() {
+		scaled_values = [];
+		d3.selectAll('.' + vital + ' svg.chart').each(function() {
 			svg = d3.select(this);
 			svg.append("image")
 				.attr("x", padding - smileyWidth/2)
@@ -93,132 +150,182 @@ function animateVital(vital, vitalRisk, values) {
 				.attr("width", smileyWidth)
 				.attr("height", smileyHeight)
 				.attr("class", svg.attr("class"));
-			subVitals.push(svg.attr("class"));
+			subVitalName = svg.attr("class").split(' ')[1]
 		});
 		
-		d3.selectAll('.' + vital + ' image').each(function() {
+		d3.selectAll('.' + vital + ' image.chart').each(function() {
 			img = d3.select(this);
 			vitalValue = values[index];
 			className = img.attr("class");
-			scaledValue = scaleFunctions[vital + '-' + className](vitalValue);
+			subVitalName = className.split(' ')[1];
+			scaledValue = xScaleFunctions[vital + '-' + subVitalName](vitalValue);
 		 	img.transition()
 		 		.duration(1000)
 		 		.attr("x", scaledValue - smileyWidth/2);
 		 	index += 1;
 		});
 		animatedVitals.push(vital);
-		return subVitals;
 	}
-	return null;
+}
+
+function animateHistogram(vital, vitalRisk, values) {
+	if (animatedHistograms.indexOf(vital) == -1) {
+		//riskString = getRangeRisk(vitalValue, ranges.value, minData, 1);
+		index = 0;
+		d3.selectAll('.' + vital + ' svg.histogram').each(function() {
+			svg = d3.select(this);
+			bar = svg.selectAll(".bar");
+			className = svg.attr("class");
+			subVitalName = className.split(' ')[1];
+			vitalValue = values[index];
+			xScale = xHistScaleFunctions[vital + '-' + subVitalName];
+			yScale = yScaleFunctions[vital + '-' + subVitalName];
+			addPersonToHistogram(bar, vitalRisk, vitalValue, xScale);
+			animateHistogramBars(svg, yScale);
+			animateHistogramPerson(bar, yScale);
+		    index += 1;
+		});
+		animatedHistograms.push(vital);
+	}
 }
 
 function getSmileyUrl(vitalRisk) {
 	baseUrl = '../static/css/images/smiley-';
-	return baseUrl + vitalRisk + '.png'
+	return baseUrl + vitalRisk + '.png';
 }
 
-// D3 Variables
-var scaleFunctions = {};
-var w = 550;
-var h = 80;
-var barSpacing = 2;
-var barHeight = 14;
-var barYPos = 42;
-var padding = 25;
-var smileyWidth = 33;
-var smileyHeight = 36;
+function getPersonUrl(vitalRisk) {
+	baseUrl = '../static/css/images/person-';
+	return baseUrl + vitalRisk + '.png';
+}
 
-function loadD3Vitals() {
+function addPersonToHistogram(bar, vitalRisk, vitalValue, xScale) {
+	imgUrl = getPersonUrl(vitalRisk);
+	bar.filter(function(d) {
+    		xBucketMax = d.x + d.dx;
+    		xBucketMin = d.x;
+    		return (xBucketMin <= vitalValue) && (xBucketMax > vitalValue);
+    	}).append("image")
+    	.attr("x", function(d) {
+    		return xScale(d.dx/2) - 8;
+    	})
+    	.attr("y", histogramHeight - 44)
+    	.attr("xlink:href", imgUrl)
+		.attr("src", imgUrl)
+		.attr("width", 17)
+		.attr("height", 44);
+}
+
+function animateHistogramBars(svg, yScale) {
+    svg.selectAll("rect")
+		.transition()
+		.duration(1000)
+    	.attr("height", function(d) {
+        	return histogramHeight - yScale(d.y / dataset.length);
+    	})
+    	.attr("y", function(d) {
+    		return yScale(d.y / dataset.length);
+    	});
+}
+
+function animateHistogramPerson(bar, yScale) {
+	bar.selectAll("image")
+		.transition()
+		.duration(1000)
+		.attr("y", function(d) {
+			return yScale(d.y / dataset.length)-44;
+		});
+}
+
+function loadVitalVisuals() {
 
 	var vitals = getVitalRanges();
 
 	for (i = 0; i < vitals.length; i++) {
 		vital = vitals[i];
 
-		for (j = 0; j < vital.dataset.length; j++) {
-			dataset = vital.dataset[j];
-
-			var svg = d3.select('.' + vital.id)
-						.append("svg")
-						.attr("width", w)
-						.attr("height", h)
-						.attr("class", dataset.name);
-
-			var xScalePos = d3.scale.linear()
-									.domain([dataset.min, dataset.max])
-									.range([padding, w - padding]);
-
-			var xScaleVal = d3.scale.linear()
-									.domain([0, dataset.max - dataset.min])
-									.range([padding, w - padding]);
-
-			scaleFunctions[vital.id + '-' + dataset.name] = xScalePos;
-			var cumLength = 0;
-
-			svg.selectAll("rect")
-				.data(dataset.value)
-				.enter()
-				.append("rect")
-				.attr("x", function(d) {
-					xVal = xScaleVal(cumLength);
-					cumLength += d[0];
-					return xVal;
-				})
-				.attr("y", barYPos)
-				.attr("width", function(d) {
-					return xScaleVal(cumLength) - xScaleVal(cumLength - d[0]) - barSpacing;
-				})
-				.attr("height", barHeight)
-				.attr("fill", function(d) {
-					return d[1]
-				});
-
-			svg.append("text")
-				.attr("class", "vital-stats-label")
-				.attr("x", padding)
-				.attr("y", barYPos - 4)
-			    .text(dataset.name);
-
-			var xAxis = d3.svg.axis()
-								.scale(xScalePos)
-								.tickValues(xScalePos.domain())
-								.orient("bottom");
-			svg.append("g")
-					.attr("class", "axis")
-					.attr("transform", "translate(0," + (h - padding) + ")")
-					.call(xAxis);
+		for (j = 0; j < vital.ranges.length; j++) {
+			ranges = vital.ranges[j];
+			loadVitalCharts(vital, ranges);
 		}
+		for (j = 0; j < vital.ranges.length; j++) {
+			ranges = vital.ranges[j];
+			loadVitalHistograms(vital, ranges);
+		}	
 	}
 }
 
-// Histogram
-function displayHistogram(vital, subVital, vitalValue) {
-	histogramID = vital + "-" + vitalValue;
-	if (displayedHistograms.indexOf(histogramID) == -1) {
-		d3.csv("../static/data/" + vital + "-" + subVital + ".csv", function(data) {
-	    	dataset = data.map(function(d) { return parseFloat(d[vital + "-" + subVital]); });
-	    	generateVis(vital, subVital, vitalValue);
+function loadVitalCharts(vital, ranges) {
+
+	dataset = vitalData[vital.id + "-" + ranges.name];
+	minData = d3.min(dataset);
+    maxData = d3.max(dataset);
+
+	var svg = d3.select('.vital-stats.' + vital.id)
+				.append("svg")
+				.attr("width", w)
+				.attr("height", h)
+				.attr("class", "chart " + ranges.name);
+
+	var xScalePos = d3.scale.linear()
+							.domain([minData, maxData])
+							.range([padding, w - padding]);
+
+	var xScaleVal = d3.scale.linear()
+							.domain([0, maxData - minData])
+							.range([padding, w - padding]);
+
+	xScaleFunctions[vital.id + '-' + ranges.name] = xScalePos;
+
+	var lastVal1 = minData;
+	var lastVal2 = minData;
+
+	svg.selectAll("rect")
+		.data(ranges.value)
+		.enter()
+		.append("rect")
+		.attr("x", function(d) {
+			xVal = xScalePos(lastVal1);
+			lastVal1 = d[0];
+			return xVal;
+		})
+		.attr("y", barYPos)
+		.attr("width", function(d) {
+			wVal = xScalePos(Math.min(d[0], maxData)) - xScalePos(lastVal2) - barSpacing;
+			lastVal2 = d[0];
+			return wVal;
+		})
+		.attr("height", barHeight)
+		.attr("fill", function(d) {
+			return d[1];
 		});
-		displayedHistograms.push(histogramID);
-	}
+
+	svg.append("text")
+		.attr("class", "vital-stats-label")
+		.attr("x", padding)
+		.attr("y", barYPos - 5)
+	    .text(ranges.name);
+
+	var xAxis = d3.svg.axis()
+						.scale(xScalePos)
+						.tickValues(xScalePos.domain())
+						.orient("bottom");
+	svg.append("g")
+			.attr("class", "axis")
+			.attr("transform", "translate(0," + (h - padding) + ")")
+			.call(xAxis);
 }
 
-function generateVis(vital, subVital, vitalValue) {
-	if (vital == 'bmi') {
-		console.log(dataset);
-	}
-	vitalValue = vitalValue;
+// Called from function that loads data into 'dataset' variable
+function loadVitalHistograms(vital, ranges) {
 
-    var formatCount = d3.format(",.0f");
+	dataset = vitalData[vital.id + "-" + ranges.name];
+	var formatCount = d3.format(",.0f");
 	var formatAsPercentage = d3.format("1%");
-    var margin = {top: 30, right: 30, bottom: 50, left: 40},
-        width = 550 - margin.left - margin.right,
-        height = 350 - margin.top - margin.bottom;
+    width = 550 - margin.left - margin.right;
 
-    minData = d3.min(dataset, function(d) { return d; });
-    //minData = Math.max(minData, 10);
-    maxData = d3.max(dataset, function(d) { return d; });
-    //maxData = Math.min(maxData, 190);
+    minData = d3.min(dataset);
+    maxData = d3.max(dataset);
 
     var xData = d3.scale.linear()
         .domain([ minData , maxData ])
@@ -228,6 +335,8 @@ function generateVis(vital, subVital, vitalValue) {
         .domain([ 0, maxData - minData ])
         .range([ 0, width ]);
 
+    xHistScaleFunctions[vital.id + '-' + ranges.name] = x;
+
     data = d3.layout.histogram()
         .bins(xData.ticks(25))
         (dataset);
@@ -236,7 +345,9 @@ function generateVis(vital, subVital, vitalValue) {
         .domain([0, d3.max(data, function(d) { 
             return d.y / dataset.length; 
         })])
-        .range([height, 0]);
+        .range([histogramHeight, 0]);
+
+    yScaleFunctions[vital.id + '-' + ranges.name] = y;
 
     var xAxis = d3.svg.axis()
         .scale(xData)
@@ -248,9 +359,10 @@ function generateVis(vital, subVital, vitalValue) {
         .ticks(4)
         .tickFormat(formatAsPercentage);
 
-    var svg = d3.select('.' + vital).append("svg")
+    var svg = d3.select('.vital-stats.' + vital.id).append("svg")
         .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+        .attr("height", histogramHeight + margin.top + margin.bottom)
+        .attr("class", "histogram " + ranges.name)
       	.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -260,22 +372,19 @@ function generateVis(vital, subVital, vitalValue) {
         .append("g")
         .attr("class", "bar")
         .attr("transform", function(d) { 
-            //return "translate(" + xData(d.x) + ", " + y(d.y / dataset.length) + ")"; 
             return "translate(" + xData(d.x) + ", 0)";
         });
 
-    var subVitalRange = getSubVitalRange(subVital);
-
     bar.append("rect")
         .attr("x", 1)
-        .attr("y", height)
+        .attr("y", histogramHeight)
         .attr("width", x(data[0].dx) - 1)
         .attr("height", 0)
         .attr("fill", function(d) {
             var xBucket = d.x + d.dx;
-            var threshold0 = subVitalRange.value[0][0] + subVitalRange.min;
-            var threshold1 = threshold0 + subVitalRange.value[1][0];
-            var threshold2 = threshold1 + subVitalRange.value[2][0];
+            var threshold0 = ranges.value[0][0];
+            var threshold1 = ranges.value[1][0];
+            var threshold2 = ranges.value[2][0];
             if (xBucket <= (threshold0)) {
                 return "#F7A649";
             } else if(xBucket <= threshold1) {
@@ -287,52 +396,17 @@ function generateVis(vital, subVital, vitalValue) {
             }
         });
 
-    svg.selectAll("rect")
-    	.transition()
-    	.duration(1000)
-        .attr("height", function(d) {
-            return height - y(d.y / dataset.length);
-        })
-        .attr("y", function(d) {
-        	return y(d.y / dataset.length);
-        });
-
-	riskString = getRangeRisk(vitalValue, subVitalRange.value, subVitalRange.min, 1);
-
-    bar.filter(function(d) {
-    		xBucketMax = d.x + d.dx;
-    		xBucketMin = d.x;
-    		return (xBucketMin <= vitalValue) && (xBucketMax > vitalValue);
-    	}).append("image")
-    	.attr("x", function(d) {
-    		return x(d.dx/2) - 8;
-    	})
-    	.attr("y", height - 44)
-    	.transition()
-    	.duration(1000)
-    	.attr("y", function(d) {
-    		return y(d.y / dataset.length)-44;
-    	})
-		.attr("xlink:href", function(d) {
-			return '../static/css/images/person-' + riskString + '.png'
-		})
-		.attr("src", function(d) {
-			return '../static/css/images/person-' + riskString + '.png'
-		})
-		.attr("width", 17)
-		.attr("height", 44);
-
     svg.append("g")
         .attr("class", "x histogram-axis")
-        .attr("transform", "translate(0," + height + ")")
+        .attr("transform", "translate(0," + histogramHeight + ")")
         .call(xAxis);
 
     svg.append("text")
         .attr("class", "x histogram-label")
         .attr("text-anchor", "middle")
         .attr("x", width / 2)
-        .attr("y", height + 45)
-        .text(subVital.toUpperCase() + " " + vital.toUpperCase());
+        .attr("y", histogramHeight + 45)
+        .text(ranges.name.toUpperCase() + " " + vital.id.toUpperCase());
 
     svg.append("g")
         .attr("class", "y histogram-axis")
@@ -341,17 +415,15 @@ function generateVis(vital, subVital, vitalValue) {
 }
 
 function getRangeRisk(value, ranges, min, colorOrRisk) {
-	cumValue = 0;
 	for (i=0; i<ranges.length; i++) {
-		cumValue += ranges[i][0];
-		if (value <= (cumValue + min)) {
+		if (value <= ranges[i][0]) {
 			if (colorOrRisk == 0) {
 				// return color
 				return ranges[i][1];
 			} else {
 				return getRangeRiskString(i);
 			}
-			if ((i == ranges.length - 1) && (value > (cumValue + min))) {
+			if ((i == ranges.length - 1) && (value > ranges[i][0])) {
 				if (colorOrRisk == 0) {
 					return ranges
 				} else {
@@ -377,9 +449,9 @@ function getSubVitalRange(subvital) {
     for (i=0; i < vitalRanges.length; i++) {
     	var vitalRangeID = vitalRanges[i].id;
     	if (vitalRangeID == vital) {
-    		for (j=0; j < vitalRanges[i].dataset.length; j++) {
-    			if (vitalRanges[i].dataset[j].name == subvital) {
-    				return vitalRanges[i].dataset[j];
+    		for (j=0; j < vitalRanges[i].ranges.length; j++) {
+    			if (vitalRanges[i].ranges[j].name == subvital) {
+    				return vitalRanges[i].ranges[j];
     			}
     		}
     	}
@@ -390,94 +462,80 @@ function getVitalRanges() {
 	vr = [
 			{ 	
 				id: 'bloodpressure',
-				dataset:
+				ranges:
 					[
 						{
 							name: 'systolic',
-							min: 40,
-							max: 180,
 							value: 
 								[
-									[50, "#F4A731"], [30, "#78BB66"], 
-									[20, "#F4A731"], [40, "#ED5A69"]
+									[90, "#F4A731",'medium-risk'], [120, "#78BB66",'low-risk'], 
+									[140, "#F4A731", 'medium-risk'], [800, "#ED5A69", 'high-risk']
 								]
 						},
 						{
 							name: 'diastolic',
-							min: 40,
-							max: 120,
 							value:
 								[
-									[20, "#F4A731"], [20, "#78BB66"], 
-									[10, "#F4A731"], [30, "#ED5A69"]
+									[60, "#F4A731", 'medium-risk'], [80, "#78BB66", 'low-risk'], 
+									[90, "#F4A731", 'medium-risk'], [700, "#ED5A69", 'high-risk']
 								]
 						}
 					]
 			},
-			{
-				id: 'bloodglucose',
-				dataset:
-					[
-						{
-							name: '',
-							min: 20,
-							max: 280,
-							value: 
-								[
-									[50, "#F4A731"], [80, "#78BB66"], 
-									[30, "#F4A731"], [100, "#ED5A69"]
-								]
-						}
-					]
-			},
+			// {
+			// 	id: 'bloodglucose',
+			// 	ranges:
+			// 		[
+			// 			{
+			// 				name: '',
+			// 				value: 
+			// 					[
+			// 						[70, "#F4A731"], [150, "#78BB66"], 
+			// 						[180, "#F4A731"], [280, "#ED5A69"]
+			// 					]
+			// 			}
+			// 		]
+			// },
 			{
 				id: 'cholesterol',
-				dataset:
+				ranges:
 					[
 						{
 							name: 'total',
-							min: 140,
-							max: 300,
 							value:
 								[
-									[20,'#F4A731'], [40,'#78BB66'], 
-									[20,'#F4A731'],[80,'#ED5A69']
+									[160,'#F4A731','medium-risk'], [200,'#78BB66','low-risk'], 
+									[240,'#F4A731','medium-risk'],[700,'#ED5A69','high-risk']
 								]
 						},
-						{
-							name: 'hdl',
-							min: 15,
-							max: 100,
-							value:
-								[
-									[10,'#F4A731'], [10,'#78BB66'], 
-									[20,'#F4A731'], [45,'#ED5A69']
-								]
-						},
+						// {
+						// 	name: 'hdl',
+						// 	value:
+						// 		[
+						// 			[25,'#ED5A69'], [35,'#F4A731'], 
+						// 			[55,'#78BB66'], [700,'#F4A731']
+						// 		]
+						// },
 						{
 							name: 'ldl',
-							min: 60,
-							max: 200,
 							value:
 								[
-									[20,'#F4A731'], [20,'#78BB66'], 
-									[40,'#F4A731'], [60, '#ED5A69']
+									[80,'#F4A731','medium-risk'], [130,'#78BB66','low-risk'], 
+									[160,'#F4A731','medium-risk'], [700, '#ED5A69','high-risk']
 								]
 						}
 					]
 			},
 			{
 				id: 'bmi',
-				dataset:
+				ranges:
 					[
 						{
 							name: '',
-							min: 10,
-							max: 40,
 							value: 
 								[
-									[8.5, "#F4A731"], [6.5, "#78BB66"], 
-									[5, "#F4A731"], [10, "#ED5A69"]
+									[17, "#F4A731",'medium-risk'], [22, "#78BB66",'low-risk'], 
+									[25, "#F4A731",'medium-risk'], [700, "#ED5A69",'high-risk']
 								]
 						}
 					]

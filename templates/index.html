@@ -8,31 +8,28 @@
         <img src="static/images/male-avatar.png" class="img-avatar" />
         <ul class="patient-profile-items">
             <li>
-                <label for="patient-name">Name:</label> Wasin Pangpon
+                <label for="patient-name">Name:</label> 1-54-000401
             </li>
             <li>
-                <label for="patient-gender">Gender:</label> Male
+                <label for="patient-gender">Gender:</label> Female
             <li>
-                <label for="patient-age">Age:</label> 26
+                <label for="patient-age">Age:</label> 29
             </li>
             <li>
-                <label for="patient-height">Height:</label> 1.78m
+                <label for="patient-height">Height:</label> 1.68m
             </li>
             <li>
-                <label for="patient-weight">Weight:</label> 70kg
-            </li>
-            <li>
-                <label for="patient-wc">Waist:</label> 28"
+                <label for="patient-weight">Weight:</label> 60kg
             </li>
         </ul>
     </div>
 </div>
 <div id="vitals">
     {% for vital in context %}
-    <div class="vital {{ vital.vital_risk }}-border-left" style="background-color: #FFF, #FFF; background-image: url('static/css/images/{{ vital.vital_icon_name }}'), url('static/css/images/expand.png'); background-repeat: no-repeat, no-repeat; background-position: 20 center, right top;">
+    <div class="vital {{ vital.vital_id }}" style="background-color: #FFF, #FFF; background-image: url('static/css/images/{{ vital.vital_icon_name }}'), url('static/css/images/expand.png'); background-repeat: no-repeat, no-repeat; background-position: 20 center, right top;">
         <div class="vital-name">{{ vital.vital_name }}</div>
         <div class="vital-value">
-            <span class="{{ vital.vital_risk }}">
+            <span class="{{ vital.vital_id }}">
             	{% for vital_value in vital.vital_values -%}
             		{{ vital_value }}
 	           		{%- if not loop.last -%}
@@ -42,12 +39,12 @@
             	{{ vital.vital_unit|safe }}
             </span>
         </div>
-        <div class="vital-overlay {{ vital.vital_risk }}-border-top" style="background-image: url('static/css/images/{{ vital.vital_icon_name }}');">
+        <div class="vital-overlay {{ vital.vital_id }}" style="background-image: url('static/css/images/{{ vital.vital_icon_name }}');">
             <div class="vital-overlay-name">{{ vital.vital_name }}</div>
             <div class="vital-overlay-date">Updated September 30<sup>th</sup>, 2013</div>
             <div class="vital-overlay-content">
             	Your {{ vital.vital_name.lower() }} is 
-            	<span class="vital-overlay-value {{ vital.vital_risk }} ">
+            	<span class="vital-overlay-value {{ vital.vital_id }}">
             		{% for vital_value in vital.vital_values -%}
             			<span class="{{ vital.vital_id }}-value-{{ loop.index0 }}">{{ vital_value }}</span>
 	           			{%- if not loop.last -%}
@@ -55,7 +52,7 @@
 	           			{%- endif -%}
             		{%- endfor %}
             	</span> {{ vital.vital_unit|safe }}
-                <div class="vital-stats {{ vital.vital_id }} {{ vital.vital_risk }}">
+                <div class="vital-stats {{ vital.vital_id }}">
         			
 
                 </div>
