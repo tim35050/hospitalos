@@ -42,7 +42,7 @@ $( 'ul.navigation li a').click(function() {
 var xScaleFunctions = {};
 var xHistScaleFunctions = {};
 var yScaleFunctions = {};
-var w = 290;
+var w = 250;
 var h = 55;
 var barSpacing = 2;
 var barHeight = 10;
@@ -57,13 +57,13 @@ var histogramWidth = w - margin.left - margin.right;
 
 // Load some D3 stuff at the way beginning
 $( document ).ready(function() {
-	$(".vital-overlay").niceScroll({cursorcolor:"rgba(255,255,255,0)"});
+	$(".vital-overlay").niceScroll({cursorcolor:"#FFF",cursoropacitymax:0, horizrailenabled:false});
 	initializeData();
 });
 
 $(window).load(function() {
 	// Page is loaded
-	$("body").fadeIn(2000);
+	$("body").fadeIn(800);
 });
 
 function initializeData() {
@@ -93,7 +93,7 @@ function setRiskLevels(vitals) {
 		   	for (k = 0; k < ranges.value.length; k++) {
 	   			cutoff = ranges.value[k][0];
 	   			if ($(this).html() < cutoff) {
-	   				setRiskLevel(vital.id, ranges.value[k][2]);
+	   				setRiskLevel(vital, ranges.value[k][2]);
 	   				break;
 	   			}
 		   	}
@@ -103,10 +103,16 @@ function setRiskLevels(vitals) {
 }
 
 function setRiskLevel(vital, risk) {
-	$('span.' + vital).addClass(risk);
-	$('.vital-stats.' + vital).addClass(risk);
-	$('.vital-overlay.' + vital).addClass(risk + "-border-top");
-	$('.vital.' + vital).addClass(risk + "-border-left")
+	$('span.' + vital.id).addClass(risk);
+	$('.vital-stats.' + vital.id).addClass(risk);
+	$('.vital-overlay.' + vital.id).addClass(risk + "-border-top");
+	$('.vital.' + vital.id).addClass(risk + "-border-left");
+	rindex=0;
+	$('.vital-overlay-value.' + vital.id).children().each(function() {
+		$(this).addClass(risk);
+		$(this).addClass(vital.ranges[rindex].name);
+		rindex += 1;
+	});
 }
 
 // Handle vital selections and the vital overlay
@@ -123,11 +129,7 @@ $( ".vital" ).click(function() {
     		vitalValues.push($(this).html());
     	});
     	animateVital(vital, vitalRisk, vitalValues);
-    	//if (subVitals != null) {
-    		//for (i=vitalValues.length - 1; i >= 0; i--) {
-				animateHistogram(vital, vitalRisk, vitalValues);
-			//}
-    	//}
+		animateHistogram(vital, vitalRisk, vitalValues);
     });
 });
 $( ".vital-overlay" ).click(function() {
@@ -145,22 +147,8 @@ var animatedHistograms = [];
 function animateVital(vital, vitalRisk, values) {
 	// the following doesn't work for IE 8 and below
 	if (animatedVitals.indexOf(vital) == -1) {
-		imgUrl = getSmileyUrl(vitalRisk);
 		index = 0;
-		scaled_values = [];
-		d3.selectAll('.' + vital + ' svg.chart').each(function() {
-			svg = d3.select(this);
-			svg.append("image")
-				.attr("x", padding - smileyWidth/2)
-				.attr("y", barYPos - smileyHeight)
-				.attr("xlink:href", imgUrl)
-				.attr("src", imgUrl)
-				.attr("width", smileyWidth)
-				.attr("height", smileyHeight)
-				.attr("class", svg.attr("class"));
-			subVitalName = svg.attr("class").split(' ')[1]
-		});
-		
+		scaled_values = [];		
 		d3.selectAll('.' + vital + ' image.chart').each(function() {
 			img = d3.select(this);
 			vitalValue = values[index];
@@ -188,7 +176,6 @@ function animateHistogram(vital, vitalRisk, values) {
 			vitalValue = values[index];
 			xScale = xHistScaleFunctions[vital + '-' + subVitalName];
 			yScale = yScaleFunctions[vital + '-' + subVitalName];
-			addPersonToHistogram(bar, vitalRisk, vitalValue, xScale);
 			animateHistogramBars(svg, yScale);
 			animateHistogramPerson(bar, yScale);
 		    index += 1;
@@ -202,22 +189,54 @@ function getSmileyUrl(vitalRisk) {
 	return baseUrl + vitalRisk + '.png';
 }
 
+function addSmileyToChart(vitalId, subVitalName) {
+	var risk;
+    $('.vital-overlay-value.' + vitalId).children().each(function() {
+    	risk = $(this).attr('class').split(' ')[1];
+    });
+	imgUrl = getSmileyUrl(risk);
+	subVitalClassName = '.' + subVitalName;
+	if (subVitalName == "") {
+		subVitalClassName = '';
+	}
+
+	d3.selectAll('.' + vitalId + ' svg.chart' + subVitalClassName).each(function() {
+		svg = d3.select(this);
+		svg.append("image")
+			.attr("x", padding - smileyWidth/2)
+			.attr("y", barYPos - smileyHeight)
+			.attr("xlink:href", imgUrl)
+			.attr("src", imgUrl)
+			.attr("width", smileyWidth)
+			.attr("height", smileyHeight)
+			.attr("class", svg.attr("class"));
+	});
+}
+
 function getPersonUrl(vitalRisk) {
 	baseUrl = '../static/css/images/person-';
 	return baseUrl + vitalRisk + '.png';
 }
 
-function addPersonToHistogram(bar, vitalRisk, vitalValue, xScale) {
-	imgUrl = getPersonUrl(vitalRisk);
+function addPersonToHistogram(bar, vitalId, subVitalName) {
+
+	subVitalClassName = '.' + subVitalName;
+	if (subVitalName == '') {
+		subVitalClassName = ''
+	}
+    child = $('.vital-overlay-value.' + vitalId).children(subVitalClassName);
+   	risk = child.attr('class').split(' ')[1];
+  	value = child.html();
+	imgUrl = getPersonUrl(risk);
 	personWidth = 11;
 	personHeight = 29;
 	bar.filter(function(d) {
     		xBucketMax = d.x + d.dx;
     		xBucketMin = d.x;
-    		return (xBucketMin <= vitalValue) && (xBucketMax > vitalValue);
+    		return (xBucketMin <= value) && (xBucketMax > value);
     	}).append("image")
     	.attr("x", function(d) {
-    		return xScale(d.dx/2) - personWidth / 2;
+    		return xHistScaleFunctions[vitalId + "-" + subVitalName](d.dx/2) - personWidth / 2;
     	})
     	.attr("y", histogramHeight - personHeight)
     	.attr("xlink:href", imgUrl)
@@ -324,6 +343,9 @@ function loadVitalCharts(vital, ranges) {
 			.attr("class", "axis")
 			.attr("transform", "translate(0," + (h - chartPaddingBottom) + ")")
 			.call(xAxis);
+
+	addSmileyToChart(vital.id, ranges.name)
+
 }
 
 // Called from function that loads data into 'dataset' variable
@@ -347,7 +369,7 @@ function loadVitalHistograms(vital, ranges) {
     xHistScaleFunctions[vital.id + '-' + ranges.name] = x;
 
     data = d3.layout.histogram()
-        .bins(xData.ticks(25))
+        .bins(xData.ticks(15))
         (dataset);
 
     var y = d3.scale.linear()
@@ -426,6 +448,8 @@ function loadVitalHistograms(vital, ranges) {
         .attr("x", -histogramHeight + 12)
         .attr("y", -33)
         .text("PERCENT OF PEOPLE LIKE YOU");
+
+    addPersonToHistogram(bar, vital.id, ranges.name);
 
 }
 

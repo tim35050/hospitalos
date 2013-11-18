@@ -16,7 +16,7 @@ def index():
 	vital['vital_id'] = 'bmi'
 	vital['vital_name'] = 'BMI'
 	vital['vital_icon_name'] = 'bmi-icon.png'
-	vital['vital_values'] = [28] #[21.26]
+	vital['vital_values'] = [27] #[21.26]
 	vital['vital_values_sep'] = ''
 	vital['vital_unit'] = 'kg/m&#178;'
 	context.append(vital)
