@@ -3,6 +3,10 @@ from flask import Flask
 from flask import render_template
 app = Flask(__name__)
 
+@app.route('/app')
+def myapp():
+	return render_template('index.html')
+
 @app.route('/')
 def index():
 	context = []
@@ -44,22 +48,7 @@ def index():
 	vital['vital_unit'] = 'mmHg'
  	context.append(vital)
 
-
-
-	return render_template('index.html', context = context)
-
-@app.route('/profile')
-def profile():
-	return render_template('profile.html')
-
-@app.route('/vitals')
-def vitals():
-
-	return render_template('vitals.html')
-
-@app.route('/diagnosis')
-def diagnosis():
-	return render_template('diagnosis.html')
+	return render_template('app.html', context = context)
 
 if __name__ == '__main__':
 	port = int(os.environ.get("PORT", 5000))
