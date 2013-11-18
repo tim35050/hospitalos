@@ -42,19 +42,22 @@ $( 'ul.navigation li a').click(function() {
 var xScaleFunctions = {};
 var xHistScaleFunctions = {};
 var yScaleFunctions = {};
-var w = 550;
-var h = 80;
+var w = 290;
+var h = 55;
 var barSpacing = 2;
-var barHeight = 14;
-var barYPos = 42;
-var padding = 25;
-var smileyWidth = 33;
-var smileyHeight = 36;
-var margin = {top: 30, right: padding, bottom: 50, left: padding};
-var histogramHeight = 350 - margin.top - margin.bottom;
+var barHeight = 10;
+var barYPos = 24;
+var padding = 16;
+var chartPaddingBottom = 24;
+var smileyWidth = 22;
+var smileyHeight = 24;
+var margin = {top: 20, right: padding, bottom: 34, left: 44};
+var histogramHeight = 230 - margin.top - margin.bottom;
+var histogramWidth = w - margin.left - margin.right;
 
 // Load some D3 stuff at the way beginning
 $( document ).ready(function() {
+	$(".vital-overlay").niceScroll({cursorcolor:"rgba(255,255,255,0)"});
 	initializeData();
 });
 
@@ -201,19 +204,21 @@ function getPersonUrl(vitalRisk) {
 
 function addPersonToHistogram(bar, vitalRisk, vitalValue, xScale) {
 	imgUrl = getPersonUrl(vitalRisk);
+	personWidth = 11;
+	personHeight = 29;
 	bar.filter(function(d) {
     		xBucketMax = d.x + d.dx;
     		xBucketMin = d.x;
     		return (xBucketMin <= vitalValue) && (xBucketMax > vitalValue);
     	}).append("image")
     	.attr("x", function(d) {
-    		return xScale(d.dx/2) - 8;
+    		return xScale(d.dx/2) - personWidth / 2;
     	})
-    	.attr("y", histogramHeight - 44)
+    	.attr("y", histogramHeight - personHeight)
     	.attr("xlink:href", imgUrl)
 		.attr("src", imgUrl)
-		.attr("width", 17)
-		.attr("height", 44);
+		.attr("width", personWidth)
+		.attr("height", personHeight);
 }
 
 function animateHistogramBars(svg, yScale) {
@@ -233,7 +238,7 @@ function animateHistogramPerson(bar, yScale) {
 		.transition()
 		.duration(1000)
 		.attr("y", function(d) {
-			return yScale(d.y / dataset.length)-44;
+			return yScale(d.y / dataset.length)-personHeight;
 		});
 }
 
@@ -312,7 +317,7 @@ function loadVitalCharts(vital, ranges) {
 						.orient("bottom");
 	svg.append("g")
 			.attr("class", "axis")
-			.attr("transform", "translate(0," + (h - padding) + ")")
+			.attr("transform", "translate(0," + (h - chartPaddingBottom) + ")")
 			.call(xAxis);
 }
 
@@ -322,18 +327,17 @@ function loadVitalHistograms(vital, ranges) {
 	dataset = vitalData[vital.id + "-" + ranges.name];
 	var formatCount = d3.format(",.0f");
 	var formatAsPercentage = d3.format("1%");
-    width = 550 - margin.left - margin.right;
 
     minData = d3.min(dataset);
     maxData = d3.max(dataset);
 
     var xData = d3.scale.linear()
         .domain([ minData , maxData ])
-        .range([ 0, width ]);
+        .range([ 0, histogramWidth ]);
 
     var x = d3.scale.linear()
         .domain([ 0, maxData - minData ])
-        .range([ 0, width ]);
+        .range([ 0, histogramWidth ]);
 
     xHistScaleFunctions[vital.id + '-' + ranges.name] = x;
 
@@ -360,7 +364,7 @@ function loadVitalHistograms(vital, ranges) {
         .tickFormat(formatAsPercentage);
 
     var svg = d3.select('.vital-stats.' + vital.id).append("svg")
-        .attr("width", width + margin.left + margin.right)
+        .attr("width", histogramWidth + margin.left + margin.right)
         .attr("height", histogramHeight + margin.top + margin.bottom)
         .attr("class", "histogram " + ranges.name)
       	.append("g")
@@ -404,13 +408,19 @@ function loadVitalHistograms(vital, ranges) {
     svg.append("text")
         .attr("class", "x histogram-label")
         .attr("text-anchor", "middle")
-        .attr("x", width / 2)
-        .attr("y", histogramHeight + 45)
-        .text(ranges.name.toUpperCase() + " " + vital.id.toUpperCase());
+        .attr("x", histogramWidth / 2)
+        .attr("y", histogramHeight + 30)
+        .text(ranges.name.toUpperCase() + " " + vital.name.toUpperCase());
 
     svg.append("g")
         .attr("class", "y histogram-axis")
         .call(yAxis);
+
+    svg.append("text")
+        .attr("class", "y histogram-label")
+        .attr("x", -histogramHeight + 12)
+        .attr("y", -33)
+        .text("PERCENT OF PEOPLE LIKE YOU");
 
 }
 
@@ -462,6 +472,7 @@ function getVitalRanges() {
 	vr = [
 			{ 	
 				id: 'bloodpressure',
+				name: 'blood pressure',
 				ranges:
 					[
 						{
@@ -498,6 +509,7 @@ function getVitalRanges() {
 			// },
 			{
 				id: 'cholesterol',
+				name: 'cholesterol',
 				ranges:
 					[
 						{
@@ -528,6 +540,7 @@ function getVitalRanges() {
 			},
 			{
 				id: 'bmi',
+				name: 'bmi',
 				ranges:
 					[
 						{

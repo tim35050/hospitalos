@@ -81,7 +81,7 @@ a img {
 
 body {
 	font-family: tahoma, sans-serif;
-	font-size: 16px;
+	font-size: 14px;
 	margin: 0;
 	background: url('images/bg-pattern.png');
 	color: #333;
@@ -128,8 +128,8 @@ ul li {
 	width: 100%;
 }
 #header {
-	height: 124px;
-	line-height: 124px;
+	height: 90px;
+	line-height: 90px;
 }
 
 #nav-menu, ul.navigation {
@@ -138,7 +138,7 @@ ul li {
 #branding {
 	background-image: url('images/logo.png');
 	background-repeat: no-repeat;
-	background-size: 107 107;
+	background-size: 80 80;
 	background-position: center center;
 	position: relative;
 	height: inherit;
@@ -146,7 +146,7 @@ ul li {
 }
 
 .site-name, .site-description {
-	font-size: 20px;
+	font-size: 12px;
 }
 .site-name {
 	float: left;
@@ -157,20 +157,22 @@ ul li {
 
 /* CONTENT */
 .content, .vital, .vital-overlay {
-	margin-top: 10px;
+	margin-top: 0px;
 	background: #FFF;
-	padding: 20px;
 	-webkit-box-shadow: 0px 3px 1px 0px #555;
 	box-shadow: 0px 3px 1px 0px #555;
 }
+.content, .vital-overlay {
+	padding: 20px;
+}
 .content h2 {
-	margin-top: 10px;
-	margin-bottom: 20px;
-	font-size: 26px;
+	margin-top: 5px;
+	margin-bottom: 10px;
+	font-size: 18px;
 	font-weight: bold;
 }
 .content p {
-	font-size: 20px;
+	font-size: 14px;
 	margin-bottom: 10px;
 	line-height: 1.4em;
 }
@@ -186,14 +188,15 @@ ul li {
 	display: none;
 }
 #vitals {
-	top: 124px;
-	bottom: 100px;
+	top: 90px;
+	bottom: 65px;
 }
 
 /* NAVIGATION */
 #nav-menu {
 	position: fixed;
 	bottom: 0;
+	left: 10px;
 	width: 100%;
 }
 ul.navigation {
@@ -214,18 +217,19 @@ ul.navigation li a {
 	text-decoration: none;
 	background-repeat: no-repeat;
 	background-color: #FFF;
-	background-position: 18 center;
-	padding-left: 60px;
+	background-position: 12 center;
+	background-size: 20px 20px;
+	padding-left: 40px;
 	text-transform: uppercase;
-	height: 65px;
-	line-height: 70px;
-	width: 120px;
+	width: 70px;
+	height: 40px;
+	line-height: 40px;
 	border-radius: 8px;
 	-webkit-box-shadow: 0px 4px 1px 0px #555;
 	box-shadow: 0px 4px 1px 0px #555;
 	font-family: 'PT Sans', sans-serif;
 	font-weight: bold;
-	font-size: 24px;
+	font-size: 16px;
 	margin-bottom: 3px;
 }
 a.active-link {
@@ -258,40 +262,39 @@ a.nav-diagnosis-active {
 .vital {
 	margin-bottom: 15px;
 	padding-top: 10px;
-	padding-left: 100px;
+	padding-bottom: 10px;
+	padding-left: 60px;
 	border-left-width: 8px;
 	border-left-style: solid;
 	background-color: #FFF;
+	background-size: 40px 40px, 25px 25px;
+	background-repeat: no-repeat, no-repeat; 
+	background-position: 10 center, right top;"
 }
 .vital-icon, .vital-icon-overlay {
 	float: left;
 }
-.vital-icon {
-	margin-top: auto;
-	margin-bottom: auto;
-	max-width: 55px;
-	max-height: 55px;
-}
+
 .vital-icon-overlay {
 	padding: 15px;
 }
 .vital-name {
-	padding-top: 10px;
-	font-size: 22px;
+	font-size: 16px;
 	font-weight: bold;
 }
 .vital-value {
-	padding-top: 4px;
+	padding-top: 0px;
 }
 .vital-value span {
-	font-size: 22px;
+	font-size: 16px;
 	font-weight: normal;
 }
 .vital-overlay {
 	background-color: #FFF;
 	background-repeat: no-repeat; 
-	background-position: 25 28;
+	background-position: 15 17;
 	background-attachment: local;
+	background-size: 50px 50px;
 	display: none;
 	position: absolute;
 	top: 0;
@@ -313,40 +316,40 @@ ul.vital-breakdown {
 }
 .close-overlay {
 	background-image: url('images/close-icon.png');
-	background-size: 53px 53px;
+	background-size: 30px 30px;
+	top: 130px;
+	right: 30px;
+	height: 30px;
+	width: 30px;
 	position: fixed;
 	display: block;
-	top: 170px;
-	right: 40px;
-	height: 53px;
-	width: 53px;
 }
 .vital-overlay-name, .vital-overlay-date {
-	padding-left: 90px;
+	padding-left: 60px;
 }
 .vital-overlay-name {
-	font-size: 36px;
+	font-size: 24px;
 	font-weight: bold;
-	margin-top: 5px;
+	margin-top: 0px;
 }
 .vital-overlay-date {
-	margin-top: 10px;
-	font-size: 18px;
+	margin-top: 5px;
+	font-size: 14px;
 	color: #999;
 	font-family: 'PT Sans', sans-serif;
 }
 .vital-overlay-content {
 	text-align: center;
-	margin-top: 20px;
-	font-size: 22px;
+	margin-top: 13px;
+	font-size: 14px;
 	color: #666;
 }
 .vital-overlay-value {
 	font-family: 'PT Sans', sans-serif;
 	font-weight: bold;
-	font-size: 48px;
-	margin-left: 3px;
-	margin-right: 3px;
+	font-size: 28px;
+	margin-left: 2px;
+	margin-right: 2px;
 }
 .high-risk {
 	color: #EC5968;
@@ -391,7 +394,7 @@ ul.vital-breakdown {
 }
 .vital-stats {
 	text-align: center;
-	margin-top: 20px;
+	margin-top: 14px;
 }
 .vital-stats-image {
 	max-width: 100%;
@@ -399,17 +402,17 @@ ul.vital-breakdown {
 .avatar {
 }
 .img-avatar {
-	max-width: 180px;
+	max-width: 50%;
 	float: left;
 }
 .last-visit {
 	width: auto;
-	height: 18px;
-	padding: 10px;
+	padding: 7px;
 	background: #FFF;
 	font-style: italic;
 	margin-top: 18px;
 	text-align: center;
+	font-size: 12px;
 }
 /* Profile Page */
 .patient-profile {
@@ -419,6 +422,13 @@ ul.patient-profile-items {
 }
 ul.patient-profile-items li {
 	list-style: none;
+}
+
+/* Doctor Page */
+.kongkiat {
+	float: left; 
+	margin-right: 20px;
+	max-width: 80px;
 }
 
 /* D3 Styles */
@@ -435,24 +445,29 @@ ul.patient-profile-items li {
 	shape-rendering: crispEdges;
 } 
 .vital-stats-label {
-	font-size: 16px;
+	font-size: 11px;
 	fill: #666;
 }
 .axis text {
     font-family: 'PT Sans', sans-serif;
-    font-size: 18px;
+    font-size: 12px;
     fill: #666;
 }
 .bar rect {
   shape-rendering: crispEdges;
 }
 .histogram-axis text {
-	font-size: 14px;
+	font-size: 10px;
 	fill: #666;
 }
 .histogram-label {
-	font-size: 18px;
+	font-size: 12px;
 	fill: #666;
+}
+.y.histogram-label {
+	transform: rotate(-90deg);
+	-ms-transform: rotate(-90deg);
+	-webkit-transform: rotate(-90deg);
 }
 
 
