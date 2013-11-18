@@ -61,6 +61,11 @@ $( document ).ready(function() {
 	initializeData();
 });
 
+$(window).load(function() {
+	// Page is loaded
+	$("body").fadeIn(2000);
+});
+
 function initializeData() {
 
 	var vitals = getVitalRanges();

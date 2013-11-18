@@ -86,6 +86,7 @@ body {
 	background: url('images/bg-pattern.png');
 	color: #333;
 	font-family: 'Amaranth', sans-serif;
+	display: none;
 	/*font-family: 'PT Sans', sans-serif;*/
 }
 a {
